@@ -25,7 +25,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     histories[update.effective_chat.id] = []
     await update.message.reply_text(
-        "Hello! I am a CV agent. Ask me about my career, skills, and experience."
+    """
+    
+    Hello! 👋 I’m the AI digital twin of the professional behind this profile.
+
+    
+    I can answer questions about their professional background, experience, skills, 
+    and how their expertise aligns with a specific role.
+
+    
+    What would you like to know?
+
+    """
     )
 
 
