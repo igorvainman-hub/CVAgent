@@ -64,12 +64,12 @@ python -m unittest discover -s tests -v
 
 ## Optional notifications
 
-Set `PUSHOVER_USER` and `PUSHOVER_TOKEN` if you want the agent to send contact requests and unanswered questions to Pushover. These values are not required for ordinary chat.
+Set `EMAIL_SMTP_SERVER`, `EMAIL_SMTP_PORT`, `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD`, and `EMAIL_TO` if you want the agent to email contact requests and unanswered questions. These values are not required for ordinary chat.
 
 ## Project files
 
 - `telegram_bot.py` - Telegram polling bot
 - `app.py` - Gradio interface and OpenAI chat logic
 - `context.py` - prompt and profile data loading
-- `tools.py` - optional Pushover notification tools
+- `tools.py` - optional email notification tools
 - `summary.txt` and `linkedin.pdf` - profile data used by the agent

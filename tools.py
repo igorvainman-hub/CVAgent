@@ -1,26 +1,38 @@
 import json
 import os
-import requests
+import smtplib
+from email.message import EmailMessage
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
-pushover_user = os.getenv("PUSHOVER_USER")
-pushover_token = os.getenv("PUSHOVER_TOKEN")
+email_smtp_server = os.getenv("EMAIL_SMTP_SERVER")
+email_smtp_port = int(os.getenv("EMAIL_SMTP_PORT", "587"))
+email_address = os.getenv("EMAIL_ADDRESS") or os.getenv("EMAIL_FROM")
+email_app_password = os.getenv("EMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASSWORD")
+email_recipient = os.getenv("EMAIL_TO") or os.getenv("EMAIL_RECIPIENT") or email_address
 
-pushover_url = "https://api.pushover.net/1/messages.json"
+
+def send_email_notification(text):
+    if not all([email_smtp_server, email_address, email_app_password, email_recipient]):
+        return
+
+    message = EmailMessage()
+    message["Subject"] = "CV Agent notification"
+    message["From"] = email_address
+    message["To"] = email_recipient
+    message.set_content(text)
+
+    with smtplib.SMTP(email_smtp_server, email_smtp_port) as smtp:
+        smtp.starttls()
+        smtp.login(email_address, email_app_password)
+        smtp.send_message(message)
 
 
 def push(text):
-    requests.post(
-        pushover_url,
-        data={
-            "token": pushover_token,
-            "user": pushover_user,
-            "message": text,
-        },
-    )
+    send_email_notification(text)
 
 
 def record_user_details(email, name="Name not provided", notes="not provided"):
