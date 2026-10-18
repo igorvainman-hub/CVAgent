@@ -15,12 +15,25 @@ email_app_password = os.getenv("EMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASSWOR
 email_recipient = os.getenv("EMAIL_TO") or os.getenv("EMAIL_RECIPIENT") or email_address
 
 
-def send_email_notification(text):
-    if not all([email_smtp_server, email_address, email_app_password, email_recipient]):
-        return
+def send_email_notification(text, subject):
+    missing_settings = [
+        name
+        for name, value in [
+            ("EMAIL_SMTP_SERVER", email_smtp_server),
+            ("EMAIL_ADDRESS", email_address),
+            ("EMAIL_APP_PASSWORD", email_app_password),
+            ("EMAIL_TO", email_recipient),
+        ]
+        if not value
+    ]
+    if missing_settings:
+        raise RuntimeError(
+            "Email notifications are not configured. Set: "
+            + ", ".join(missing_settings)
+        )
 
     message = EmailMessage()
-    message["Subject"] = "CV Agent notification"
+    message["Subject"] = subject
     message["From"] = email_address
     message["To"] = email_recipient
     message.set_content(text)
@@ -31,17 +44,23 @@ def send_email_notification(text):
         smtp.send_message(message)
 
 
-def push(text):
-    send_email_notification(text)
+def push(text, subject):
+    send_email_notification(text, subject)
 
 
 def record_user_details(email, name="Name not provided", notes="not provided"):
-    push(f"Recording interest from {name} with email {email} and notes {notes}")
+    push(
+        f"New contact request\nName: {name}\nEmail: {email}\nNotes: {notes}",
+        "New contact request",
+    )
     return "OK"
 
 
 def record_unknown_question(question):
-    push(f"Recording {question} asked that I couldn't answer")
+    push(
+        f"An unanswered question was recorded:\n{question}",
+        "Unanswered question",
+    )
     return "OK"
 
 
