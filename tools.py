@@ -66,12 +66,12 @@ def record_unknown_question(question):
 
 record_user_details_json = {
     "name": "record_user_details",
-    "description": "Use this tool to record that a user is interested in being in touch and provided an email address",
+    "description": "Use this tool to record that a user is interested in being in touch and provided contact details like email or phone number and name etc. You can also record any additional notes about the conversation that are worth recording to give context.",
     "parameters": {
         "type": "object",
         "properties": {
-            "email": {"type": "string", "description": "The email address of this user"},
-            "name": {"type": "string", "description": "The user's name, if they provided it"},
+            "email": {"type": "string", "description": "The email address of this user or other contact information"},
+            "name": {"type": "string", "description": "The user's name, if they provided it or use 'Name not provided' if they didn't provide it"},
             "notes": {
                 "type": "string",
                 "description": "Any additional info about the conversation that's worth recording to give context",
@@ -84,7 +84,7 @@ record_user_details_json = {
 
 record_unknown_question_json = {
     "name": "record_unknown_question",
-    "description": "Always use this tool to record any question that couldn't be answered as you didn't know the answer",
+    "description": "Always use this tool to record any question that couldn't be answered as you didn't know the answer to imrove the knowledge base. The question will be recorded and sent to the email address",
     "parameters": {
         "type": "object",
         "properties": {
