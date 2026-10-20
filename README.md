@@ -1,14 +1,21 @@
 # CV Agent
 
-AI digital twin that answers questions about a person's career, skills and experience. The project provides both a Gradio web interface and a Telegram bot.
+CV Agent is an AI digital twin that answers recruiters' questions about a
+professional's documented career, skills, and experience. It provides a
+Gradio web chat and a Telegram bot, powered by the OpenAI API.
+
+The agent uses the project owner's LinkedIn PDF export and profile summary as
+its only sources of personal facts. It is instructed to be transparent that
+it is an AI representative, avoid unsupported claims, and keep conversations
+focused on professional background and role-related questions.
 
 ## Requirements
 
 - Python 3.11 or newer
 - An OpenAI API key
-- A Telegram bot token for Telegram mode
-- Your own LinkedIn export as `linkedin.pdf`
-- Your own profile summary as `summary.txt`
+- A Telegram bot token if you plan to run the Telegram bot
+- Your LinkedIn profile export as `linkedin.pdf`
+- Your profile summary as `summary.txt`
 
 ## Setup
 
@@ -20,7 +27,8 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env` and set the required values:
+Create a local `.env` file from the example and set your OpenAI API key. Add
+the Telegram token if you will use Telegram:
 
 ```powershell
 Copy-Item .env.example .env
@@ -31,14 +39,26 @@ OPENAI_API_KEY=your_openai_api_key
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 ```
 
-Add your personal profile data to the project root:
+Place your profile data in the project root:
 
-- `linkedin.pdf` - export your LinkedIn profile as a PDF and rename it to `linkedin.pdf`.
-- `summary.txt` - write a short description of yourself and save it as `summary.txt`.
+- `linkedin.pdf` - your LinkedIn profile export in PDF format.
+- `summary.txt` - a concise summary of your professional background.
 
-These files are intentionally ignored by Git because every project owner must use their own data. Do not upload another person's profile information to GitHub.
+Both files are required when the app starts. They are excluded from Git so
+each project owner can use their own profile; do not commit personal profile
+data. Keep `.env` private and never commit API keys or bot tokens.
 
-Create the Telegram token with [@BotFather](https://t.me/BotFather) using `/newbot`. Keep `.env` private and never commit it.
+Create a Telegram bot token with [@BotFather](https://t.me/BotFather) using
+`/newbot`.
+
+## Run the web chat
+
+```powershell
+python app.py
+```
+
+Gradio prints the local URL in the terminal. The web chat retains up to the
+most recent 10 history messages for each request.
 
 ## Run the Telegram bot
 
@@ -46,15 +66,27 @@ Create the Telegram token with [@BotFather](https://t.me/BotFather) using `/newb
 python telegram_bot.py
 ```
 
-Open the bot in Telegram and send `/start`. Use `/reset` to clear the conversation history. The bot uses long polling, so the process must remain running.
+Open the bot in Telegram and send `/start` to begin. Send `/reset` to clear
+that chat's conversation history. Telegram uses long polling, so keep the
+process running while using the bot. Chat history is held in memory and is
+cleared when the process restarts.
 
-## Run the web interface
+## Email notifications (optional)
 
-```powershell
-python app.py
+The agent can email contact requests and questions it cannot answer from the
+profile. Configure these values in `.env` to enable those notifications:
+
+```env
+EMAIL_SMTP_SERVER=smtp.gmail.com
+EMAIL_SMTP_PORT=587
+EMAIL_ADDRESS=your_email@example.com
+EMAIL_APP_PASSWORD=your_email_app_password
+EMAIL_TO=recipient@example.com
 ```
 
-Gradio prints a local URL in the terminal.
+These settings are not required for ordinary chat. The example values are
+placeholders; use credentials for your own SMTP account. The `.env.example`
+file includes the full list of supported settings.
 
 ## Run tests
 
@@ -62,14 +94,12 @@ Gradio prints a local URL in the terminal.
 python -m unittest discover -s tests -v
 ```
 
-## Optional notifications
-
-Set `EMAIL_SMTP_SERVER`, `EMAIL_SMTP_PORT`, `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD`, and `EMAIL_TO` if you want the agent to email contact requests and unanswered questions. These values are not required for ordinary chat.
-
 ## Project files
 
-- `telegram_bot.py` - Telegram polling bot
-- `app.py` - Gradio interface and OpenAI chat logic
-- `context.py` - prompt and profile data loading
-- `tools.py` - optional email notification tools
-- `summary.txt` and `linkedin.pdf` - profile data used by the agent
+- `app.py` - Gradio web interface and OpenAI chat handling.
+- `telegram_bot.py` - Telegram bot commands and message handling.
+- `context.py` - Loads profile data and builds the system prompt.
+- `tools.py` - Contact and unanswered-question email notification tools.
+- `styles.py` - Web interface styles and example prompts.
+- `requirements.txt` - Python dependencies.
+- `linkedin.pdf` and `summary.txt` - Required, owner-specific profile data.
