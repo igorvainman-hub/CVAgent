@@ -9,6 +9,8 @@ from pathlib import Path
 load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
 MODEL_NAME = "gpt-5.4-mini"
+MAX_HISTORY_MESSAGES = 10
+MAX_COMPLETION_TOKENS = 500
 
 openai = OpenAI()
 
@@ -16,15 +18,26 @@ system = [{"role": "system", "content": TWIN_SYSTEM_PROMPT}]
 
 
 def chat(message, history):
-    messages = system + history + [{"role": "user", "content": message}]
-    response = openai.chat.completions.create(model=MODEL_NAME, messages=messages, tools=tools)
+    recent_history = history[-MAX_HISTORY_MESSAGES:]
+    messages = system + recent_history + [{"role": "user", "content": message}]
+    response = openai.chat.completions.create(
+        model=MODEL_NAME,
+        messages=messages,
+        tools=tools,
+        max_completion_tokens=MAX_COMPLETION_TOKENS,
+    )
     while response.choices[0].finish_reason == "tool_calls":
         message = response.choices[0].message
         tool_calls = message.tool_calls
         results = handle_tool_calls(tool_calls)
         messages.append(message)
         messages.extend(results)
-        response = openai.chat.completions.create(model=MODEL_NAME, messages=messages, tools=tools)
+        response = openai.chat.completions.create(
+            model=MODEL_NAME,
+            messages=messages,
+            tools=tools,
+            max_completion_tokens=MAX_COMPLETION_TOKENS,
+        )
     return response.choices[0].message.content
 
 
